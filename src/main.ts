@@ -6,5 +6,6 @@ const app = new cdk8s.App({ yamlOutputType: cdk8s.YamlOutputType.FILE_PER_RESOUR
 new prom.Grafana(app, 'Grafana');
 new prom.Nodeexporter(app, 'node-exporter');
 new prom.kubeStateMetricsservice(app,'kube-State-Service');
+new prom.kubeStateMetricsServiceaccount(app,'kube-State-Metrics-Serviceaccount');
 app.synth();
 
