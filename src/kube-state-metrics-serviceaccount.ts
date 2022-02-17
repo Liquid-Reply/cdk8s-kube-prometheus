@@ -7,7 +7,17 @@ export class kubeStateMetricsServiceaccount extends Chart {
     super(scope, id, props);
 
     //automountServiceAccountToken: false
-    new ServiceAccount(this, "ServiceAccount",{metadata:{name:"kube-state-metrics", namespace:"monitoring", labels:{["app.kubernetes.io/component"]:"exporter",["app.kubernetes.io/name"]:"kube-state-metrics",["app.kubernetes.io/part-of"]:"kube-prometheus",["app.kubernetes.io/version"]:"2.3.0"}}})
+    new ServiceAccount(this, "ServiceAccount",{
+      metadata:{
+        name:"kube-state-metrics", namespace:"monitoring", labels:{
+          ["app.kubernetes.io/component"]:"exporter",
+          ["app.kubernetes.io/name"]:"kube-state-metrics",
+          ["app.kubernetes.io/part-of"]:"kube-prometheus",
+          ["app.kubernetes.io/version"]:"2.3.0"
+        }
+      }
+    }
+    )
   }
 }
 
