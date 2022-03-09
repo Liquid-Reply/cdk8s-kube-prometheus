@@ -22,7 +22,7 @@ export class Nodeexporter extends cdk8s.Chart {
     const port = 9100;
     const rbacProxyVersion = "0.11.0";
 
-    var ds = new k8s.KubeDaemonSet(this, "node-exporter-daemonset", {
+    new k8s.KubeDaemonSet(this, "node-exporter-daemonset", {
       metadata: {
         namespace: "monitoring",
         name: "node-exporter",
