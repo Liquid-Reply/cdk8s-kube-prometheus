@@ -132,10 +132,10 @@ export class Nodeexporter extends cdk8s.Chart {
                     valueFrom: {
                       fieldRef: {
                         fieldPath: "status.podIP",
-                      }
-                    }
-                  }
-                ]
+                      },
+                    },
+                  },
+                ],
               },
             ],
             hostNetwork: true,
