@@ -1,5 +1,5 @@
 import * as cdk8s from "cdk8s";
-import * as kplus from "cdk8s-plus-22";
+// import * as kplus from "cdk8s-plus-22";
 import { Construct } from "constructs";
 import * as k8s from "./imports/k8s";
 
@@ -19,9 +19,10 @@ export class Nodeexporter extends cdk8s.Chart {
   }
 
   private addDaemonset() {
-    var port = 9100;
-    var rbacProxyVersion = "0.11.0";
-    new k8s.KubeDaemonSet(this, "node-exporter-daemonset", {
+    const port = 9100;
+    const rbacProxyVersion = "0.11.0";
+
+    var ds = new k8s.KubeDaemonSet(this, "node-exporter-daemonset", {
       metadata: {
         namespace: "monitoring",
         name: "node-exporter",
@@ -125,6 +126,16 @@ export class Nodeexporter extends cdk8s.Chart {
                   runAsNonRoot: true,
                   runAsUser: 65532,
                 },
+                env: [
+                  {
+                    name: "IP",
+                    valueFrom: {
+                      fieldRef: {
+                        fieldPath: "status.podIP",
+                      }
+                    }
+                  }
+                ]
               },
             ],
             hostNetwork: true,
@@ -171,7 +182,7 @@ export class Nodeexporter extends cdk8s.Chart {
   }
 
   private addServiceAccount() {
-    new kplus.ServiceAccount(this, "node-exporter-serviceaccount", {
+    new k8s.KubeServiceAccount(this, "node-exporter-serviceaccount", {
       metadata: {
         name: "node-exporter",
         namespace: "monitoring",
@@ -180,6 +191,7 @@ export class Nodeexporter extends cdk8s.Chart {
           ...this.version,
         },
       },
+      automountServiceAccountToken: false,
     });
   }
 }
