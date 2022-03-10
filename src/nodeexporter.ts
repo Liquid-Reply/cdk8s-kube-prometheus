@@ -16,6 +16,8 @@ export class Nodeexporter extends cdk8s.Chart {
     super(scope, id);
     this.addDaemonset();
     this.addServiceAccount();
+    this.addClusterRole();
+    this.addClusterRoleBinding();
   }
 
   private addDaemonset() {
@@ -192,6 +194,56 @@ export class Nodeexporter extends cdk8s.Chart {
         },
       },
       automountServiceAccountToken: false,
+    });
+  }
+
+  private addClusterRole() {
+    new k8s.KubeClusterRole(this, "node-exporter-clusterrole", {
+      metadata: {
+        name: "node-exporter",
+        namespace: "monitoring",
+        labels: {
+          ...this.selectors,
+          ...this.version,
+        },
+      },
+      rules: [
+        {
+          apiGroups: ["authentication.k8s.io"],
+          verbs: ["create"],
+          resources: ["tokenreviews"],
+        },
+        {
+          apiGroups: ["authorization.k8s.io"],
+          verbs: ["create"],
+          resources: ["subjectaccessreviews"],
+        },
+      ],
+    });
+  }
+
+  private addClusterRoleBinding() {
+    new k8s.KubeClusterRoleBinding(this, "node-exporter-clusterrolebinding", {
+      metadata: {
+        name: "node-exporter",
+        namespace: "monitoring",
+        labels: {
+          ...this.selectors,
+          ...this.version,
+        },
+      },
+      roleRef: {
+        apiGroup: "rbac.authorization.k8s.io",
+        kind: "ClusterRole",
+        name: "node-exporter",
+      },
+      subjects: [
+        {
+          kind: "ServiceAccount",
+          name: "node-exporter",
+          namespace: "monitoring",
+        },
+      ],
     });
   }
 }
