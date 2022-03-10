@@ -1,9 +1,8 @@
 import * as cdk8s from "cdk8s";
-// import * as kplus from "cdk8s-plus-22";
 import { Construct } from "constructs";
 import * as k8s from "./imports/k8s";
 
-export class Nodeexporter extends cdk8s.Chart {
+export class NodeExporter extends cdk8s.Chart {
   exporterVersion = "1.3.1";
   selectors = {
     "app.kubernetes.io/component": "exporter",
