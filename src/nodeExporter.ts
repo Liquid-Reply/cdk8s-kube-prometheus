@@ -1,6 +1,7 @@
 import * as cdk8s from "cdk8s";
 import { Construct } from "constructs";
 import * as k8s from "./imports/k8s";
+import * as crd from "./imports/monitoring.coreos.com";
 
 export class NodeExporter extends cdk8s.Chart {
   exporterVersion = "1.3.1";
@@ -17,6 +18,49 @@ export class NodeExporter extends cdk8s.Chart {
     this.addServiceAccount();
     this.addClusterRole();
     this.addClusterRoleBinding();
+    this.addServiceMonitor();
+  }
+
+  private addServiceMonitor() {
+    new crd.ServiceMonitor(this, "node-exporter-servicemonitor", {
+      metadata: {
+        labels: {
+          ...this.selectors,
+          ...this.version,
+        },
+        name: "node-exporter",
+        namespace: "monitoring",
+      },
+      spec: {
+        endpoints: [
+          {
+            bearerTokenFile:
+              "/var/run/secrets/kubernetes.io/serviceaccount/token",
+            interval: "15s",
+            port: "https",
+            relabelings: [
+              {
+                action: crd.ServiceMonitorSpecEndpointsRelabelingsAction.REPLACE,
+                regex: "(.*)",
+                replacement: "$1",
+                sourceLabels: ["__meta_kubernetes_pod_node_name"],
+                targetLabel: "instance",
+              },
+            ],
+            scheme: "https",
+            tlsConfig: {
+              insecureSkipVerify: true,
+            },
+          },
+        ],
+        selector: {
+          matchLabels: {
+            ...this.selectors,
+          },
+        },
+        jobLabel: "app.kubernetes.io/name",
+      },
+    });
   }
 
   private addDaemonset() {
